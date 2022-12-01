@@ -12,7 +12,7 @@ typedef struct D3point{
     int z;
 } 3Dpoint;
 
-int D2translation(D2point xy, D3point tr){
+D2point D2translation(D2point xy, D3point tr){
 
     D2point newxy;
     newxy.x = xy.x + tr.x;
@@ -22,7 +22,26 @@ int D2translation(D2point xy, D3point tr){
 }
 
 
-int D3translation(D3point xyz, D3point tr){
+D3point D3translation(D3point xyz, D3point tr){
+
+    D3point newxyz;
+    newxyz.x = xyz.x + tr.x;
+    newxyz.y = xyz.y + tr.y;
+    newxyz.z = xyz.z + tr.z;
+
+    return newxyz;
+}
+
+D2point D2Scaling(D2point xy, D2point tr){
+
+    D2point newxy;
+    newxy.x = xy.x + tr.x;
+    newxy.y = xy.y + tr.y;
+
+    return newxy
+}
+
+D3point D3Scaling(D3point xyz, D3point tr){
 
     D3point newxyz;
     newxyz.x = xyz.x + tr.x;
