@@ -1,6 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define PI 3.14159265
+
 typedef struct D2point{
     int x;
     int y;
@@ -51,7 +53,31 @@ D3point D3Scale(D3point xyz, D3point sc){
 }
 
 D2point D2Rotation(D2point xy, D2point ro){
-    
+
+    D2point newxy;
+
     return newxy;
 }
 
+double cg_sin(double dg){
+    
+    double dgSin;
+    dgSin = sin((dg * PI)/180);
+    
+    return dgSin;
+}
+
+double cg_cos(double dg){
+    
+    double dgCos;
+    dgCos = cos((dg * PI)/180);
+    
+    return dgCos;
+}
+
+double cg_tan(double dg){
+    double dgTan;
+    dgTan = tan((dg * PI)/180);
+
+    return dgTan;
+}
