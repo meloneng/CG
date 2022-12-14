@@ -56,8 +56,13 @@ D2point D2Rotation(D2point xy, D2point ro){
 
     D2point newxy;
 
+    newxy.x = (xy.x * cg_cos(ro)) - (xy.y * cg_sin(ro));
+    newxy.y = (xy.x * cg_sin(ro)) + (xy.y * cg_cos(ro));
+
     return newxy;
 }
+
+
 
 double cg_sin(double dg){
     
@@ -81,3 +86,4 @@ double cg_tan(double dg){
 
     return dgTan;
 }
+
