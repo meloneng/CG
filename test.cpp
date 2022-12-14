@@ -26,5 +26,8 @@ int main(){
     cout << "novo x: " << newxy.x << "\nnovo y: "
         << newxy.y << "\n\n" << endl;
 
+    cout << cg_sin(90) << endl;
+    cout << cg_cos(60) << endl;
+    cout << cg_tan(45) << endl;
     
 }
