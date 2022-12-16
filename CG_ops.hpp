@@ -52,6 +52,32 @@ D3point D3Scale(D3point xyz, D3point sc){
     return newxyz;
 }
 
+D2point D2reflectionOrigin(D2point xy){
+    D2point newxy;
+
+    newxy.x = xy.x * -1;
+    newxy.y = xy.y * -1;
+
+    return newxy;
+}
+
+D2point D2reflectionX(D2point xy){
+    D2point newxy;
+
+    newxy.y = xy.y * -1;
+
+    return newxy;
+}
+
+D2point D2reflectionY(D2point xy){
+    D2point newxy;
+
+    newxy.x = xy.x * -1;
+
+    return newxy;
+}
+
+/*
 D2point D2Rotation(D2point xy, D2point ro){
 
     D2point newxy;
@@ -61,8 +87,6 @@ D2point D2Rotation(D2point xy, D2point ro){
 
     return newxy;
 }
-
-
 
 double cg_sin(double dg){
     
@@ -87,3 +111,4 @@ double cg_tan(double dg){
     return dgTan;
 }
 
+*/
