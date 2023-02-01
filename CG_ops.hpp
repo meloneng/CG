@@ -3,6 +3,15 @@ using namespace std;
 
 #define PI 3.14159265
 
+
+// Definicao de vertice
+struct vertice{
+    int x;
+    int y;
+};
+
+
+/*
 typedef struct D2point{
     int x;
     int y;
@@ -13,6 +22,7 @@ typedef struct D3point{
     int y;
     int z;
 }D3point;
+
 
 D2point D2translation(D2point xy, D2point tr){
 
@@ -34,6 +44,7 @@ D3point D3translation(D3point xyz, D3point tr){
     return newxyz;
 }
 
+
 D2point D2Scale(D2point xy, D2point sc){
     D2point newxy;
     newxy.x = xy.x * sc.x;
@@ -41,6 +52,7 @@ D2point D2Scale(D2point xy, D2point sc){
 
     return newxy;   
 }
+
 
 D3point D3Scale(D3point xyz, D3point sc){
     
@@ -51,6 +63,7 @@ D3point D3Scale(D3point xyz, D3point sc){
 
     return newxyz;
 }
+
 
 D2point D2reflectionOrigin(D2point xy){
     D2point newxy;
@@ -69,6 +82,7 @@ D2point D2reflectionX(D2point xy){
     return newxy;
 }
 
+
 D2point D2reflectionY(D2point xy){
     D2point newxy;
 
@@ -77,7 +91,8 @@ D2point D2reflectionY(D2point xy){
     return newxy;
 }
 
-/*
+
+
 D2point D2Rotation(D2point xy, D2point ro){
 
     D2point newxy;
@@ -112,3 +127,16 @@ double cg_tan(double dg){
 }
 
 */
+
+
+// Algoritmo bresenham
+vector<vertice> bresenham(vertice a, vertice b){
+    int delx = b.x - a.x;
+    int dely = b.y - a.y;
+    int dis = 2*dely - delx;
+    int ince = 2*dely;
+    int incne = 2*(dely - delx);
+
+    
+
+}
