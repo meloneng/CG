@@ -3,6 +3,7 @@
 using namespace std;
 
 int main(){
+    /*
     D2point xy;
     xy.x = 1;
     xy.y = 2;
@@ -29,5 +30,13 @@ int main(){
     cout << cg_sin(90) << endl;
     cout << cg_cos(60) << endl;
     cout << cg_tan(45) << endl;
-    
+    */
+
+   vertice z = {4,1}, v = {1,5};
+   vector<vertice>test = bresenham(z,v);
+
+    for(auto it : test){
+        cout << "\nX = " << it.x << "\nY = " << it.y << "\n------" << endl;
+    }
+
 }
