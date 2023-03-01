@@ -22,7 +22,6 @@
 #include <forward_list>
 #include <bits/stdc++.h>
 #include "glut_text.h"
-#include "CG_ops.hpp"
 
 using namespace std;
 
@@ -35,9 +34,6 @@ enum tipo_forma{LIN = 1, TRI, RET, POL, CIR }; // Linha, Triangulo, Retangulo Po
 //Verifica se foi realizado o primeiro clique do mouse
 bool click1 = false;
 
-//Verifica se foi realizado o segundo clique do mouse
-bool click2 = false;
-
 //Coordenadas da posicao atual do mouse
 int m_x, m_y;
 
@@ -49,6 +45,12 @@ int modo = LIN;
 
 //Largura e altura da janela
 int width = 512, height = 512;
+
+// Definicao de vertice
+struct vertice{
+    int x;
+    int y;
+};
 
 // Definicao das formas geometricas
 struct forma{
@@ -67,8 +69,6 @@ void pushForma(int tipo){
     formas.push_front(f);
 }
 
-vector<vertice> verticesAll;
-
 // Funcao para armazenar um vertice na forma do inicio da lista de formas geometricas
 // Armazena sempre no inicio da lista
 void pushVertice(int x, int y){
@@ -83,13 +83,6 @@ void pushLinha(int x1, int y1, int x2, int y2){
     pushForma(LIN);
     pushVertice(x1, y1);
     pushVertice(x2, y2);
-}
-
-void pushTri(vertice v1, vertice v2, vertice v3){
-    pushForma(TRI);
-    pushVertice(v1.x, v1.y);
-    pushVertice(v2.x, v2.y);
-    pushVertice(v3.x, v3.y);
 }
 
 /*
@@ -108,6 +101,10 @@ void drawFormas();
 // Funcao que implementa o Algoritmo Imediato para rasterizacao de segmentos de retas
 void retaImediata(double x1,double y1,double x2,double y2);
 //------------------------------------------------------------------------------------
+// Forma a linha
+vector<vertice> lineBresenham(vertice a, vertice b);
+// Algoritmo de Bresenham
+vector<vertice> bresenham(vertice a, vertice b);
 
 
 /*
@@ -130,7 +127,6 @@ int main(int argc, char** argv){
     glutCreateMenu(menu_popup);
     glutAddMenuEntry("Linha", LIN);
 //    glutAddMenuEntry("Retangulo", RET);
-    glutAddMenuEntry("Triangulo", TRI);
     glutAddMenuEntry("Sair", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -223,37 +219,6 @@ void mouse(int button, int state, int x, int y){
                         }
                     }
                 break;
-                case TRI:
-                    if (state == GLUT_DOWN) {
-                        if(click1 && click2){
-                            vertice vtc3;
-                            vtc3.x = x;
-                            vtc3.y = height - y - 1;
-                            printf("Clique 3(%d, %d)\n",vtc3.x,vtc3.y);
-                            verticesAll.push_back(vtc3);
-                            pushTri(verticesAll[0], verticesAll[1], verticesAll[2]);
-                            verticesAll.clear();
-                            click2 = false;
-                            click1 = false;
-                            glutPostRedisplay();
-                        }
-                        else if(click1){
-                            vertice vtc2;
-                            vtc2.x = x;
-                            vtc2.y = height - y - 1;
-                            printf("Clique 2(%d, %d)\n",vtc2.x,vtc2.y);
-                            verticesAll.push_back(vtc2);
-                            click2 = true;
-                        }else{
-                            vertice vtc1;
-                            vtc1.x = x;
-                            vtc1.y = height - y - 1;
-                            printf("Clique 1(%d, %d)\n",vtc1.x,vtc1.y);
-                            verticesAll.push_back(vtc1);
-                            click1 = true;
-                        }
-                    }
-                break;
             }
         break;
 
@@ -294,24 +259,12 @@ void drawPixel(int x, int y){
  */
 void drawFormas(){
     //Apos o primeiro clique, desenha a reta com a posicao atual do mouse
-    //if(click1) retaImediata(x_1, y_1, m_x, m_y);
-    if(click1){
-        vertice vtc0, mousepos;
-        vtc0.x = x_1;
-        vtc0.y = y_1;
-        mousepos.x = m_x;
-        mousepos.y = m_y;
-        vector<vertice> lineMouse = bresenham(vtc0, mousepos);
-        for(auto i: lineMouse){
-            drawPixel(i.x,i.y);
-        }
-    }
+    if(click1) retaImediata(x_1, y_1, m_x, m_y);
     
     //Percorre a lista de formas geometricas para desenhar
     for(forward_list<forma>::iterator f = formas.begin(); f != formas.end(); f++){
         switch (f->tipo) {
             case LIN:
-            {
                 int i = 0, x[2], y[2];
                 //Percorre a lista de vertices da forma linha para desenhar
                 for(forward_list<vertice>::iterator v = f->v.begin(); v != f->v.end(); v++, i++){
@@ -319,46 +272,7 @@ void drawFormas(){
                     y[i] = v->y;
                 }
                 //Desenha o segmento de reta apos dois cliques
-                //retaImediata(x[0], y[0], x[1], y[1]);
-
-                // Bresenham
-                vertice vtc1, vtc2;
-                vtc1.x = x[0];
-                vtc1.y = y[0];
-                vtc2.x = x[1];
-                vtc2.y = y[1];
-                vector<vertice> line = bresenham(vtc1, vtc2);
-                for(auto i: line){
-                    drawPixel(i.x,i.y);
-                }
-            }
-            break;
-            case TRI:
-            {
-                vector<vertice> auxl;
-                for(forward_list<vertice>::iterator v = f->v.begin(); v != f->v.end(); v++){
-                    vertice auxv;
-                    auxv.x = v->x;
-                    auxv.y = v->y;
-                    printf("line (%d, %d)\n",auxv.x,auxv.y);
-                    auxl.push_back(auxv);
-                }
-
-                vector<vertice> line1 = bresenham(auxl[0], auxl[1]);
-                vector<vertice> line2 = bresenham(auxl[1], auxl[2]);
-                vector<vertice> line3 = bresenham(auxl[2], auxl[0]);
-
-                for(auto i: line1){
-                    drawPixel(i.x,i.y);
-                }
-                for(auto i: line2){
-                    drawPixel(i.x,i.y);
-                }
-                for(auto i: line3){
-                    drawPixel(i.x,i.y);
-                }
-                printf("draw all");
-            }
+                retaImediata(x[0], y[0], x[1], y[1]);
             break;
 //            case RET:
 //            break;
@@ -406,4 +320,75 @@ void retaImediata(double x1, double y1, double x2, double y2){
         }
     }
     drawPixel((int)x2,(int)y2);
+}
+
+//-----------------------------------------------------------------------------------
+// Bresenham algorithm
+
+vector<vertice> bresenham(vertice a, vertice b){
+    bool slope = false;
+    bool symmetry = false;
+    int delx = b.x - a.x;
+    int dely = b.y - a.y;
+    if(delx*dely < 0){
+        a.y *= -1;
+        b.y *= -1;
+        dely *= -1;
+        symmetry = true;
+    }
+    if(abs(delx) < abs(dely)){
+        swap(a.x,a.y);
+        swap(b.x,b.y);
+        swap(delx,dely);
+        slope = true;
+    }
+    if(a.x > b.x){
+        swap(a.x,b.x);
+        swap(a.y,b.y);
+        dely *= -1;
+        delx *= -1;
+    }
+
+    vector<vertice> line = lineBresenham(a,b);
+    
+    if(slope && symmetry){
+        for(auto &i : line){
+            swap(i.x,i.y);
+            i.y *= -1;
+        }
+    }else if(slope && !symmetry){
+        for(auto &i : line){
+            swap(i.x,i.y);
+        }        
+    }else if(!slope && symmetry){
+        for(auto &i : line){
+            i.y *= -1;
+        }
+    }
+    return line;
+}
+// Line definition
+vector<vertice> lineBresenham(vertice a, vertice b){
+    vector<vertice> line;
+    int delx = b.x - a.x;
+    int dely = b.y - a.y;
+    int dis = 2*dely - delx;
+    int ince = 2*dely;
+    int incne = 2*(dely - delx);
+
+    int x = a.x, y = a.y;
+    vertice w = {x,y};
+    line.push_back(w);
+    while(x < b.x){
+        if(dis <= 0){
+            dis += ince;
+        }else{
+            dis += incne;
+            y++;
+        }
+        x++;
+        w = {x,y};
+        line.push_back(w);
+    }
+    return line;
 }
