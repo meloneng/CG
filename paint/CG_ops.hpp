@@ -13,6 +13,7 @@ struct vertice{
 // Predefinitions
 vector<vertice> bresenham(vertice a, vertice b);
 vector<vertice> lineBresenham(vertice a, vertice b);
+vector<vertice> bresenhamCirc(vertice a, int R);
 //-----------------------------------------------------------------------------------
 
 
@@ -83,4 +84,55 @@ vector<vertice> lineBresenham(vertice a, vertice b){
         line.push_back(w);
     }
     return line;
+}
+
+vector<vertice> bresenhamCirc(vertice a, int r){
+    vector<vertice> vertices;
+    int d = 1-r;
+    int delE = 3;
+    int delSE = (-2*r)+5;
+    int x=0, y=r;
+
+    vertice auxv = {0+a.x,r+a.y};
+    vertices.push_back(auxv);
+    auxv = {r+a.x,0+a.y};
+    vertices.push_back(auxv);
+    auxv = {0+a.x,-r+a.y};
+    vertices.push_back(auxv);
+    auxv = {-r+a.x,0+a.y};
+    vertices.push_back(auxv);
+
+    while(y > x){
+        if(d<0){
+            d+=delE;
+            delE+=2;
+            delSE+=2;
+        }else{
+            d+=delSE;
+            delE+=2;
+            delSE+=4;
+            y--;
+        }
+        x++;
+
+        auxv = {x+a.x,y+a.y};
+        vertices.push_back(auxv);
+        auxv = {x+a.x,-y+a.y};
+        vertices.push_back(auxv);
+        auxv = {y+a.x,x+a.y};
+        vertices.push_back(auxv);
+        auxv = {y+a.x,-x+a.y};
+        vertices.push_back(auxv);
+        auxv = {-x+a.x,y+a.y};
+        vertices.push_back(auxv);
+        auxv = {-x+a.x,-y+a.y};
+        vertices.push_back(auxv);
+        auxv = {-y+a.x,x+a.y};
+        vertices.push_back(auxv);
+        auxv = {-y+a.x,-x+a.y};
+        vertices.push_back(auxv);
+
+    }
+
+    return vertices;
 }

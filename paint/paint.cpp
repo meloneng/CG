@@ -85,11 +85,26 @@ void pushLinha(int x1, int y1, int x2, int y2){
     pushVertice(x2, y2);
 }
 
+// Adiciona triangulos à lista
 void pushTri(vertice v1, vertice v2, vertice v3){
     pushForma(TRI);
     pushVertice(v1.x, v1.y);
     pushVertice(v2.x, v2.y);
     pushVertice(v3.x, v3.y);
+}
+
+// Adiciona quadriláteros à lista
+void pushRET(vertice v1, vertice v2){
+    pushForma(RET);
+    pushVertice(v1.x, v1.y);
+    pushVertice(v2.x, v2.y);
+}
+
+// Adiciona quadriláteros à lista
+void pushCIR(vertice v1, vertice v2){
+    pushForma(CIR);
+    pushVertice(v1.x, v1.y);
+    pushVertice(v2.x, v2.y);
 }
 
 /*
@@ -129,8 +144,9 @@ int main(int argc, char** argv){
     // Define o menu pop-up
     glutCreateMenu(menu_popup);
     glutAddMenuEntry("Linha", LIN);
-//    glutAddMenuEntry("Retangulo", RET);
     glutAddMenuEntry("Triangulo", TRI);
+    glutAddMenuEntry("Retangulo", RET);
+    glutAddMenuEntry("Circulo", CIR);
     glutAddMenuEntry("Sair", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -207,6 +223,9 @@ void mouse(int button, int state, int x, int y){
         case GLUT_LEFT_BUTTON:
             switch(modo){
                 case LIN:
+                {
+
+                
                     if (state == GLUT_DOWN) {
                         if(click1){
                             x_2 = x;
@@ -222,10 +241,14 @@ void mouse(int button, int state, int x, int y){
                             printf("Clique 1(%d, %d)\n",x_1,y_1);
                         }
                     }
+                }
                 break;
                 case TRI:
+                {
                     if (state == GLUT_DOWN) {
                         if(click1 && click2){
+                            click1 = false;
+                            click2 = false;
                             vertice vtc3;
                             vtc3.x = x;
                             vtc3.y = height - y - 1;
@@ -233,8 +256,6 @@ void mouse(int button, int state, int x, int y){
                             verticesAll.push_back(vtc3);
                             pushTri(verticesAll[0], verticesAll[1], verticesAll[2]);
                             verticesAll.clear();
-                            click2 = false;
-                            click1 = false;
                             glutPostRedisplay();
                         }
                         else if(click1){
@@ -253,6 +274,53 @@ void mouse(int button, int state, int x, int y){
                             click1 = true;
                         }
                     }
+                }
+                break;
+                case RET:
+                {
+                    if (state == GLUT_DOWN) {
+                        if(click1){
+                            click1 = false;
+                            vertice vtc2;
+                            vtc2.x = x;
+                            vtc2.y = height - y - 1;
+                            printf("Clique 1(%d, %d)\n",x_1,y_1);
+                            verticesAll.push_back(vtc2);
+                            pushRET(verticesAll[0], verticesAll[1]);
+                            verticesAll.clear();
+                        }else{
+                            vertice vtc1;
+                            vtc1.x = x;
+                            vtc1.y = height - y - 1;
+                            printf("Clique 1(%d, %d)\n",x_1,y_1);
+                            verticesAll.push_back(vtc1);
+                            click1 = true;
+                        }
+                    }
+                }
+                break;
+                case CIR:
+                {
+                    if (state == GLUT_DOWN) {
+                        if(click1){
+                            click1 = false;
+                            vertice vtc2;
+                            vtc2.x = x;
+                            vtc2.y = height - y - 1;
+                            printf("Clique 2(%d, %d)\n",x_1,y_1);
+                            verticesAll.push_back(vtc2);
+                            pushCIR(verticesAll[1], verticesAll[0]);
+                            verticesAll.clear();
+                        }else{
+                            vertice vtc1;
+                            vtc1.x = x;
+                            vtc1.y = height - y - 1;
+                            printf("Clique 1(%d, %d)\n",x_1,y_1);
+                            verticesAll.push_back(vtc1);
+                            click1 = true;
+                        }
+                    }
+                }
                 break;
             }
         break;
@@ -340,7 +408,6 @@ void drawFormas(){
                     vertice auxv;
                     auxv.x = v->x;
                     auxv.y = v->y;
-                    printf("line (%d, %d)\n",auxv.x,auxv.y);
                     auxl.push_back(auxv);
                 }
 
@@ -357,11 +424,63 @@ void drawFormas(){
                 for(auto i: line3){
                     drawPixel(i.x,i.y);
                 }
-                printf("draw all");
             }
             break;
-//            case RET:
-//            break;
+            case RET:
+            {
+                vector<vertice> auxl;
+                for(forward_list<vertice>::iterator v = f->v.begin(); v != f->v.end(); v++){
+                    vertice auxv;
+                    auxv.x = v->x;
+                    auxv.y = v->y;
+                    auxl.push_back(auxv);
+                }
+
+                vertice vertice0 = {auxl[0].x, auxl[0].y};
+                vertice vertice1 = {auxl[0].x, auxl[1].y};
+                vertice vertice2 = {auxl[1].x, auxl[1].y};
+                vertice vertice3 = {auxl[1].x, auxl[0].y};
+
+                vector<vertice> line0 = bresenham(vertice0, vertice1);
+                vector<vertice> line1 = bresenham(vertice1, vertice2);
+                vector<vertice> line2 = bresenham(vertice2, vertice3);
+                vector<vertice> line3 = bresenham(vertice3, vertice0);
+
+                for(auto i: line0){
+                    drawPixel(i.x,i.y);
+                }
+                for(auto i: line1){
+                    drawPixel(i.x,i.y);
+                }
+                for(auto i: line2){
+                    drawPixel(i.x,i.y);
+                }
+                for(auto i: line3){
+                    drawPixel(i.x,i.y);
+                }
+            }
+            break;
+            case CIR:
+            {
+                vector<vertice> auxl;
+                for(forward_list<vertice>::iterator v = f->v.begin(); v != f->v.end(); v++){
+                    vertice auxv;
+                    auxv.x = v->x;
+                    auxv.y = v->y;
+                    auxl.push_back(auxv);
+                }
+
+                vertice center = {auxl[0].x, auxl[0].y};
+                int radius = abs(auxl[1].x - auxl[0].x);
+                
+                vector<vertice> circ = bresenhamCirc(center,radius);
+
+                for(auto i: circ){
+                    drawPixel(i.x,i.y);
+                }
+                
+            }
+            break;
         }
     }
 }
