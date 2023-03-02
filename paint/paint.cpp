@@ -107,6 +107,13 @@ void pushCIR(vertice v1, vertice v2){
     pushVertice(v2.x, v2.y);
 }
 
+void pushPOL(vector<vertice> v){
+    pushForma(POL);
+    for(auto i: v){
+        pushVertice(i.x, i.y);
+    }
+}
+
 /*
  * Declaracoes antecipadas (forward) das funcoes (assinaturas das funcoes)
  */
@@ -147,6 +154,7 @@ int main(int argc, char** argv){
     glutAddMenuEntry("Triangulo", TRI);
     glutAddMenuEntry("Retangulo", RET);
     glutAddMenuEntry("Circulo", CIR);
+    glutAddMenuEntry("Poligono", POL);
     glutAddMenuEntry("Sair", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -322,6 +330,19 @@ void mouse(int button, int state, int x, int y){
                     }
                 }
                 break;
+                case POL:
+                {
+                    if (state == GLUT_DOWN) {
+                        vertice vtc;
+                        vtc.x = x;
+                        vtc.y = height - y - 1;
+                        printf("Clique (%d, %d)\n",x_1,y_1);
+                        verticesAll.push_back(vtc);
+                        click1 = true;
+                        
+                    }
+                }
+                break;
             }
         break;
 
@@ -331,11 +352,12 @@ void mouse(int button, int state, int x, int y){
 //            }
 //        break;
 //
-//        case GLUT_RIGHT_BUTTON:
-//            if (state == GLUT_DOWN) {
-//                glutPostRedisplay();
-//            }
-//        break;
+        case GLUT_MIDDLE_BUTTON:
+            if (state == GLUT_DOWN) {
+                pushPOL(verticesAll);
+                verticesAll.clear();
+            }
+        break;
             
     }
 }
@@ -479,6 +501,35 @@ void drawFormas(){
                     drawPixel(i.x,i.y);
                 }
                 
+            }
+            break;
+            case POL:
+            {
+                vector<vertice> auxl;
+                for(forward_list<vertice>::iterator v = f->v.begin(); v != f->v.end(); v++){
+                    vertice auxv;
+                    auxv.x = v->x;
+                    auxv.y = v->y;
+                    auxl.push_back(auxv);
+                }
+                
+                for(int i=1 ; i<auxl.size() ; i++){
+                    if(i == (auxl.size() -1)){
+                        vector<vertice> line = bresenham(auxl[i],auxl[0]);
+                        for(auto i: line){
+                            drawPixel(i.x,i.y);
+                        }
+                        line = bresenham(auxl[i-1],auxl[i]);
+                        for(auto i: line){
+                            drawPixel(i.x,i.y);
+                        }
+                    }else{
+                        vector<vertice> line = bresenham(auxl[i-1],auxl[i]);
+                        for(auto i: line){
+                            drawPixel(i.x,i.y);
+                        }
+                    }
+                }
             }
             break;
         }
