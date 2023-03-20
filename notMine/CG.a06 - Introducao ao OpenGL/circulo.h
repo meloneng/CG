@@ -9,6 +9,10 @@
 
 #include <cmath>
 
+#ifndef M_PI
+    #define M_PI 3.14159265f
+#endif
+
 void desenhaCirculo(float raio, int num_linhas,bool preenchido)
 {
     int i;

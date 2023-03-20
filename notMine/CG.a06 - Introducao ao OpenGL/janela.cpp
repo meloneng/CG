@@ -107,25 +107,13 @@ void keyboard(unsigned char key, int x, int y){
  *Funcao usada na fucao callback para controlar as teclas especiais (2 Byte) do teclado
  */
 void keyboard_special(int key, int x, int y){
-   switch(key){
-      case GLUT_KEY_F1:
-         R=0.0; G=0.0; B=1.0;      // F1: muda a cor para azul
-         glutPostRedisplay();
-         break;
-
-      case GLUT_KEY_F2:
-         R=0.0; G=1.0; B=0.0;      // F2: muda a cor para verde
-         glutPostRedisplay();
-         break;
-
-      case GLUT_KEY_F3:
-         R=1.0; G=0.0; B=0.0;      // F2: muda a cor para vermelho
-         glutPostRedisplay();
-         break;
-
-      default: 
-      break;
-   }
+    switch(key){
+      case GLUT_KEY_F1: R=0.0; G=0.0; B=1.0; break; // F1: muda a cor para azul
+      case GLUT_KEY_F2: R=0.0; G=1.0; B=0.0; break; // F2: muda a cor para verde
+      case GLUT_KEY_F3: R=1.0; G=0.0; B=0.0; break; // F3: muda a cor para vermelho
+      default: break;
+    }
+    glutPostRedisplay();
 }
 
 /*
@@ -138,26 +126,117 @@ void display(void){
 
     // Transformacoes usadas no triangulo com vertice esquerdo na origem dos eixos cartesianos
     glColor3f(R, G, B);
-//	glScalef(0.5, 0.5, 0);
-//	glTranslatef(200,200, 0);
-//	glRotatef(180, 0, 0, 1);
+	//glScalef(0.5, 0.5, 0);
+	//glTranslatef(200,200, 0);
+	//glRotatef(180, 0, 0, 1);
 
 
-	glBegin(GL_TRIANGLES);
+	/*glBegin(GL_TRIANGLES);
         // Coordenadas com vertice esquerdo do triangulo na origem dos eixos cartesianos
 		glVertex2f(100, 200);
 		glVertex2f(0, 0);
 		glVertex2f(200, 0);
 
         // Coordenadas com centro do triangulo na origem dos eixo cartesianos
-//        glVertex2f(0, 100);
-//        glVertex2f(-100, -100);
-//        glVertex2f(100, -100);
+        //glVertex2f(0, 100);
+        //glVertex2f(-100, -100);
+        //glVertex2f(100, -100);
 
-    glEnd();
+    glEnd();*/
+
 
     // Funcao criada para desenhar circulos
-//    desenhaCirculo(100,30,true);
+    // desenhaCirculo(100,30,true);
+
+    // Cart
+    glBegin(GL_TRIANGLES);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex2f(30, 100);
+        glVertex2f(200, 100);
+        glVertex2f(30, 160);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex2f(200, 100);
+        glVertex2f(30, 160);
+        glVertex2f(200, 160);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glColor3f(1.0f, 1.0f, 0.0f);
+        glVertex2f(30, 160);
+        glVertex2f(200, 160);
+        glVertex2f(115, 190);
+    glEnd();
+    glBegin(GL_TRIANGLE_FAN);
+	for (int i = 0; i <= 20; i++){
+		glVertex2f(
+			-0.7f + (0.2f * cos(i * (2.0f * 3.14f) / 20)),
+			-0.1f + (0.2f *sin(i * (2.0f * 3.14f) / 20))
+			);
+	}
+	glEnd();
+    
+    // Head
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex2f(230, 220);
+        glVertex2f(230, 160);
+        glVertex2f(330, 160);
+        glVertex2f(330, 220);
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(0.0f, 1.0f, 1.0f);
+        glVertex2f(235, 215);
+        glVertex2f(235, 165);
+        glVertex2f(325, 165);
+        glVertex2f(325, 215);
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(230, 100);
+        glVertex2f(230, 160);
+        glVertex2f(330, 160);
+        glVertex2f(330, 100);
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 1.0f, 0.0f);
+        glVertex2f(330, 100);
+        glVertex2f(330, 160);
+        glVertex2f(430, 160);
+        glVertex2f(430, 100);        
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(225, 220);
+        glVertex2f(225, 223);
+        glVertex2f(335, 223);
+        glVertex2f(335, 220);
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex2f(375, 160);
+        glVertex2f(375, 223);
+        glVertex2f(405, 223);
+        glVertex2f(405, 160);
+    glEnd();
+    glBegin(GL_QUADS);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(370, 220);
+        glVertex2f(370, 223);
+        glVertex2f(410, 223);
+        glVertex2f(410, 220);
+    glEnd();
+
+
+
+    // Cart wheels
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glTranslatef(50, 80, 0);
+    desenhaCirculo(20,30,true);
+    glTranslatef(130, 0, 0);
+    desenhaCirculo(20,30,true);
+
+    
 
     glFlush(); // manda o OpenGl renderizar as primitivas
 
