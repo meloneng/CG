@@ -20,26 +20,42 @@ float ypos = 0.0f;
 float zpos = 0.0f;
 
 
+// Definicao dos parametros do modelo de iluminacao
+GLfloat light_pos[] = {-2.0, 2.0, 2.0, 0.0};
+GLfloat light_Ka[] = {0.4, 0.4, 0.4, 0.0};
+GLfloat light_Kd[] = {1.0, 1.0, 1.0, 0.0};
+GLfloat light_Ks[] = {1.0, 1.0, 1.0, 0.0};
+// Definicao dos parametros do material para o modelo de iluminacao
+// Parametros para material amarelado, cor de latao (Brass)
+GLfloat material_Ka[] = {0.33, 0.22, 0.03, 1.00};
+GLfloat material_Kd[] = {0.78, 0.57, 0.11, 1.00};
+GLfloat material_Ks[] = {0.99, 0.94, 0.81, 1.00};
+GLfloat material_Ke[] = {0.00, 0.00, 0.00, 0.00};
+GLfloat material_Se = 28;
+
+
+
 void init(void);
 void display(void);
 void reshape (int w, int h);
 void keyboard (unsigned char key, int x, int y);
 void arrowKeys(int key, int x, int y);
 void shapesToDraw();
-
+void windowFuncs();
+void callBackFuncs();
+void lightFuncs();
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);          // initialize freeglut
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);  // set the display mode
-    glutInitWindowSize(800, 600);   // set the window size
-    glutCreateWindow("Sphere Example"); // create the window
+    windowFuncs();
 
     init();
 
-    glutDisplayFunc(display);       // set the display callback function
-    glutReshapeFunc(reshape);
-    glutSpecialFunc(arrowKeys);      // set the special key callback function
-    glutKeyboardFunc(keyboard);
+    callBackFuncs();
+
+    lightFuncs();
+
     glutMainLoop();                 // enter the main loop
     return 0;
 }
@@ -55,7 +71,7 @@ void shapesToDraw(){
     glTranslatef(xpos, ypos, zpos);                     // sphere starting position
     glPushMatrix();
     glColor3f(0.0f, 0.0f, 1.0f);                         
-    glutWireSphere(1.0f, 20, 20);                       // draw the sphere
+    glutSolidSphere(1.0f, 20, 20);                       // draw the sphere
     glPopMatrix();
     glPopMatrix();
 }
@@ -107,7 +123,43 @@ void arrowKeys(int key, int x, int y) {
 
 void keyboard (unsigned char key, int x, int y){
 	switch (key) {
+        case 27:
+            exit(EXIT_SUCCESS);
+            break;
 	}
     glutPostRedisplay();
 }
 
+void windowFuncs(){
+    glutInitWindowSize(800, 600);   // set the window size
+    glutCreateWindow("Testing"); // create the window
+}
+
+void callBackFuncs(){
+    glutDisplayFunc(display);       // set the display callback function
+    glutReshapeFunc(reshape);
+    glutSpecialFunc(arrowKeys);      // set the special key callback function
+    glutKeyboardFunc(keyboard);
+}
+
+void lightFuncs(){
+
+     // Ativacao dos parametros do modelo de iluminacao para a Luz 0
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_Ka);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_Kd);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_Ks);
+
+    // Ativacao dos parametros do material para uso do modelo de iluminacao
+    // Para usar este material a iluminacao (GL_LIGHTING) deve estar ativa
+    // e a cor do material (GL_COLOR_MATERIAL) desativada
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material_Ka);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_Kd);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material_Ks);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_Ke);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material_Se);
+
+    glEnable(GL_LIGHTING); // Ativa o modelo de iluminacao
+    glEnable(GL_LIGHT0); // Ativa a Luz 0. O OpenGL suporta pelo menos 8 pontos de luz.
+
+}
