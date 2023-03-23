@@ -8,3 +8,6 @@
 To install OpenGL:
     pacman -S freeglut glu
 
+To compile OpenGL files:
+	g++ file.cpp -lGLU -lGL -lglut
+
