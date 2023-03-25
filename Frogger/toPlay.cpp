@@ -56,6 +56,8 @@ void windowFuncs();
 void callBackFuncs();
 void lightFuncs();
 void modelFuncs();
+void drawFloor(GLuint mode);
+
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);          // initialize freeglut
@@ -99,6 +101,8 @@ void shapesToDraw(){
         glRotated (rotz, 0.0f, 0.0f, 1.0f);
         glmDrawAnimation(frogModel, modeShade);
     glPopMatrix();
+
+    drawFloor(modeShade);
 }
 
 void display() {
@@ -199,3 +203,30 @@ void modelFuncs(){
     vertices = frogModel->models[0]->numvertices;
 }
 
+void drawFloor(GLuint mode){
+    glEnable(GL_SMOOTH);
+    glDisable(GL_TEXTURE_2D);
+    for(int x = -32; x <= 30; x++ ){
+        for (int z = -32; z <= 17; z++){
+            glPushMatrix();
+                glTranslatef(x, 0, z);
+                glBegin(GL_TRIANGLES);
+                    glNormal3f( 0.0, -1.0,  0.0);
+                    glVertex3f( 0.5, -1.0, -0.5);
+                    if(mode & GLM_SMOOTH) glNormal3f(0.0, -1.0, 0.0);
+                    glVertex3f(-0.5, -1.0, -0.5);
+                    if(mode & GLM_SMOOTH) glNormal3f(0.0, 1.0, 0.0);
+                    glVertex3f( 0.5, -1.0,  0.5);
+                    
+                    glNormal3f(0.0, 1.0, 0.0);
+                    glVertex3f(-0.5, -1.0,  0.5);
+                    if(mode & GLM_SMOOTH)glNormal3f(0.0, 1.0, 0.0);
+                    glVertex3f( 0.5, -1.0,  0.5);
+                    if(mode & GLM_SMOOTH) glNormal3f(0.0, -1.0,  0.0);
+                    glVertex3f(-0.5, -1.0, -0.5);
+                glEnd();
+            glPopMatrix();
+        }
+    }
+    glEnable(GL_TEXTURE_2D);
+}
