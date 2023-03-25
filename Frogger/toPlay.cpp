@@ -11,13 +11,19 @@
 
 
 #include <bits/stdc++.h>
+#include "glm.h"
 
 using namespace std;
 
-// Sphere position
-float xpos = 0.0f;
+// Model position
+// x=-2, y=0, z=19
+float xpos = -2.0f;
 float ypos = 0.0f;
-float zpos = 0.0f;
+float zpos = 19.0f;
+// Model scale
+float scale = 0.97;
+// Model initial rotation
+float rotx = 0.0, roty = 180.0, rotz = 0.0;
 
 
 // Definicao dos parametros do modelo de iluminacao
@@ -33,6 +39,11 @@ GLfloat material_Ks[] = {0.99, 0.94, 0.81, 1.00};
 GLfloat material_Ke[] = {0.00, 0.00, 0.00, 0.00};
 GLfloat material_Se = 28;
 
+GLManimation *frogModel = NULL;
+int faces=0,vertices=0;
+
+GLuint modeShade;
+
 
 
 void init(void);
@@ -44,6 +55,7 @@ void shapesToDraw();
 void windowFuncs();
 void callBackFuncs();
 void lightFuncs();
+void modelFuncs();
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);          // initialize freeglut
@@ -55,6 +67,8 @@ int main(int argc, char** argv) {
     callBackFuncs();
 
     lightFuncs();
+    
+    modelFuncs();
 
     glutMainLoop();                 // enter the main loop
     return 0;
@@ -67,12 +81,23 @@ void init(void){
 }
 
 void shapesToDraw(){
-    glPushMatrix();
+    /*glPushMatrix();
     glTranslatef(xpos, ypos, zpos);                     // sphere starting position
     glPushMatrix();
-    glColor3f(0.0f, 0.0f, 1.0f);                         
+    glColor3f(0.0f, 0.0f, 1.0f);             
     glutSolidSphere(1.0f, 20, 20);                       // draw the sphere
     glPopMatrix();
+    glPopMatrix();*/
+    
+    modeShade = (GLM_SMOOTH | GLM_TEXTURE);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPushMatrix();
+        glScaled(scale, scale, scale);
+        glTranslated (xpos, ypos, zpos);
+        glRotated (rotx, 1.0f, 0.0f, 0.0f);
+        glRotated (roty, 0.0f, 1.0f, 0.0f);
+        glRotated (rotz, 0.0f, 0.0f, 1.0f);
+        glmDrawAnimation(frogModel, modeShade);
     glPopMatrix();
 }
 
@@ -94,9 +119,9 @@ void reshape (int w, int h){
 
     // Define a forma do volume de visualizacao para termos
     // uma projecao perspectiva (3D).
-    gluPerspective(60, (float)w/(float)h , 1.0, 30.0); //(angulo, aspecto, ponto_proximo, ponto distante)
-    gluLookAt(0.0,-7.0,15.0,  // posicao da camera (olho)
-              0.0,1.0,0.0,  // direcao da camera (geralmente para centro da cena)
+    gluPerspective(60, (float)w/(float)h , 1.0, 300.0); //(angulo, aspecto, ponto_proximo, ponto distante)
+    gluLookAt(0.0,30.0,15.0,  // posicao da camera (olho)
+              0.0,0.0,0.0,  // direcao da camera (geralmente para centro da cena)
               0.0,1.0,0.0); // sentido ou orientacao da camera (de cabeca para cima)
     // muda para o modo GL_MODELVIEW para desenhar na tela
     glMatrixMode (GL_MODELVIEW);
@@ -106,10 +131,10 @@ void reshape (int w, int h){
 void arrowKeys(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            ypos += 0.2f;
+            zpos -= 0.2f;
             break;
         case GLUT_KEY_DOWN:
-            ypos -= 0.2f;
+            zpos += 0.2f;
             break;
         case GLUT_KEY_LEFT:
             xpos -= 0.2f;
@@ -119,6 +144,7 @@ void arrowKeys(int key, int x, int y) {
             break;
     }
     glutPostRedisplay();  // redraw the scene with the new sphere position
+    cout << "x" << xpos << endl << "y" << ypos << endl << "z" << zpos << endl;
 }
 
 void keyboard (unsigned char key, int x, int y){
@@ -163,3 +189,13 @@ void lightFuncs(){
     glEnable(GL_LIGHT0); // Ativa a Luz 0. O OpenGL suporta pelo menos 8 pontos de luz.
 
 }
+
+void modelFuncs(){
+    // Loading the Frog model
+    cout << "Loading frog model" << endl;
+    frogModel = glmLoadAnimation("Obj/Tree_frog.obj", 1, 1);
+    frogModel->name = "paused";
+    faces = frogModel->models[0]->numtriangles;
+    vertices = frogModel->models[0]->numvertices;
+}
+
