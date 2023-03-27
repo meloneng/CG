@@ -15,7 +15,7 @@
 
 using namespace std;
 
-// Model position
+// Frog position
 // x=-2, y=0, z=19
 float xpos = -2.0f;
 float ypos = 0.0f;
@@ -24,6 +24,12 @@ float zpos = 19.0f;
 float scale = 0.97;
 // Model initial rotation
 float rotx = 0.0, roty = 180.0, rotz = 0.0;
+
+
+// Car positions
+vector<float> xcars{0, -13, 15};
+vector<float> ycars{0,0,0};
+vector<float> zcars{3, -7, -20};
 
 
 // Definicao dos parametros do modelo de iluminacao
@@ -41,6 +47,9 @@ GLfloat material_Se = 28;
 
 GLManimation *frogModel = NULL;
 int faces=0,vertices=0;
+
+GLManimation *carModel = NULL;
+int facesCar=0,verticesCar=0;
 
 GLuint modeShade;
 
@@ -62,6 +71,7 @@ void drawFloor(GLuint mode);
 int main(int argc, char** argv) {
     glutInit(&argc, argv);          // initialize freeglut
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);  // set the display mode
+
     windowFuncs();
 
     init();
@@ -102,6 +112,38 @@ void shapesToDraw(){
         glmDrawAnimation(frogModel, modeShade);
     glPopMatrix();
 
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPushMatrix();
+        glScaled(scale, scale, scale);
+        glTranslated (xcars[0], ycars[0], zcars[0]);
+        glRotated (0, 1.0f, 0.0f, 0.0f);
+        glRotated (90, 0.0f, 1.0f, 0.0f);
+        glRotated (0, 0.0f, 0.0f, 1.0f);
+        glmDrawAnimation(carModel, modeShade);
+    glPopMatrix();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPushMatrix();
+        glScaled(scale, scale, scale);
+        glTranslated (xcars[1], ycars[1], zcars[1]);
+        glRotated (0, 1.0f, 0.0f, 0.0f);
+        glRotated (90, 0.0f, 1.0f, 0.0f);
+        glRotated (0, 0.0f, 0.0f, 1.0f);
+        glmDrawAnimation(carModel, modeShade);
+    glPopMatrix();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glPushMatrix();
+        glScaled(scale, scale, scale);
+        glTranslated (xcars[2], ycars[2], zcars[2]);
+        glRotated (0, 1.0f, 0.0f, 0.0f);
+        glRotated (90, 0.0f, 1.0f, 0.0f);
+        glRotated (0, 0.0f, 0.0f, 1.0f);
+        glmDrawAnimation(carModel, modeShade);
+    glPopMatrix();
+
+
     drawFloor(modeShade);
 }
 
@@ -135,16 +177,16 @@ void reshape (int w, int h){
 void arrowKeys(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            zpos -= 0.2f;
+            zpos -= 0.3f;
             break;
         case GLUT_KEY_DOWN:
-            zpos += 0.2f;
+            zpos += 0.3f;
             break;
         case GLUT_KEY_LEFT:
-            xpos -= 0.2f;
+            xpos -= 0.3f;
             break;
         case GLUT_KEY_RIGHT:
-            xpos += 0.2f;
+            xpos += 0.3f;
             break;
     }
     glutPostRedisplay();  // redraw the scene with the new sphere position
@@ -195,12 +237,41 @@ void lightFuncs(){
 }
 
 void modelFuncs(){
+
+    // Configurando o OpenGL para o uso de Texturas
+    // Define como a textura sera aplicada ao objeto
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    // Ativa a visualizacao de texturas 2D (Texturizacao 2D)
+    glEnable(GL_TEXTURE_2D);
+    
+    // Ativa o modelo de sombreamento de "Gouraud" (Smooth
+    glShadeModel(GL_SMOOTH);
+    
+    // Ativa o Back-face Culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    
+    // Ativa o z-buffering, de modo a remover as superficies escondidas
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+        
+    //Define a cor de fundo (branco)
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+
     // Loading the Frog model
     cout << "Loading frog model" << endl;
     frogModel = glmLoadAnimation("Obj/Tree_frog.obj", 1, 1);
     frogModel->name = "paused";
     faces = frogModel->models[0]->numtriangles;
     vertices = frogModel->models[0]->numvertices;
+
+    // Loading Car model
+    cout << "Loading car model" << endl;
+    carModel = glmLoadAnimation("cars/PD_VehiclePack_OBJ/Sedan_A_beige.obj", 1,1);
+    carModel->name = "paused";
+    facesCar = carModel->models[0]->numtriangles;
+    verticesCar = carModel->models[0]->numvertices;
 }
 
 void drawFloor(GLuint mode){
