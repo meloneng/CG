@@ -13,10 +13,27 @@
 #include <bits/stdc++.h>
 #include "glm.h"
 
+// FPS related variables
+#define MAX_FPS 70 // Maximo de Frames Por Segundo (FPS) desejado
+#define FPS 60 // FPS desejado atualmente
+#define KEYFRAME_RATE 3 // taxa de repeticoes do keyframe da animacao nos quadros da video
+
+int fps_desejado = FPS/2; // variavel para alterar os frames por segundo desejado
+int fps = 0; //contador de frames por segundo
+float reshape_ratio = 1.0; // Manter proporcional a projecao
+
+int keyframe = 0; // numero do modelo 3D (keyframe) da animacao que sera desenhado no momento
+int keyframe_rate = KEYFRAME_RATE; // alterar a taxa de repeticoes do keyframe na reproducao da animacao
+int count_rate = -1; //Conta a quantidade de repeticoes do keyframe ate atingir a taxa keyframe_rate
+int frames_playing = 0; //Conta a quantidade de quadros enquanto reproduz uma mesma animacao ate troca-la
+
+//Enumeracoes com as direcoes do Objeto 3D em relacao a camera para realizar movimentacoes
+enum direcao_acam{frente, tras, esquerda, direita};
+int direcao = frente;
+
 using namespace std;
 
 // Frog position
-// x=-2, y=0, z=19
 float xpos = -2.0f;
 float ypos = 0.0f;
 float zpos = 19.0f;
@@ -30,6 +47,8 @@ float rotx = 0.0, roty = 180.0, rotz = 0.0;
 vector<float> xcars{0, -13, 15};
 vector<float> ycars{0,0,0};
 vector<float> zcars{3, -7, -20};
+vector<bool> carDir{false,false,false};  // Cars driving direction
+float carSpeed = 0.3;  // Cars speed
 
 
 // Definicao dos parametros do modelo de iluminacao
@@ -46,10 +65,8 @@ GLfloat material_Ke[] = {0.00, 0.00, 0.00, 0.00};
 GLfloat material_Se = 28;
 
 GLManimation *frogModel = NULL;
-int faces=0,vertices=0;
 
 GLManimation *carModel = NULL;
-int facesCar=0,verticesCar=0;
 
 GLuint modeShade;
 
@@ -66,6 +83,9 @@ void callBackFuncs();
 void lightFuncs();
 void modelFuncs();
 void drawFloor(GLuint mode);
+void computeFPS(int keyframe_rate);
+void timer(int value);
+void carsMovements();
 
 
 int main(int argc, char** argv) {
@@ -101,6 +121,7 @@ void shapesToDraw(){
     glPopMatrix();
     glPopMatrix();*/
     
+    // Frog
     modeShade = (GLM_SMOOTH | GLM_TEXTURE);
     glColor3f(1.0f, 1.0f, 1.0f);
     glPushMatrix();
@@ -112,7 +133,7 @@ void shapesToDraw(){
         glmDrawAnimation(frogModel, modeShade);
     glPopMatrix();
 
-
+    // Car 0
     glColor3f(1.0f, 1.0f, 1.0f);
     glPushMatrix();
         glScaled(scale, scale, scale);
@@ -123,6 +144,7 @@ void shapesToDraw(){
         glmDrawAnimation(carModel, modeShade);
     glPopMatrix();
 
+    // Car 1
     glColor3f(1.0f, 1.0f, 1.0f);
     glPushMatrix();
         glScaled(scale, scale, scale);
@@ -133,6 +155,7 @@ void shapesToDraw(){
         glmDrawAnimation(carModel, modeShade);
     glPopMatrix();
 
+    // Car 2
     glColor3f(1.0f, 1.0f, 1.0f);
     glPushMatrix();
         glScaled(scale, scale, scale);
@@ -148,6 +171,10 @@ void shapesToDraw(){
 }
 
 void display() {
+
+    // Computa a taxa  de desenho de frames por segundo
+    computeFPS(keyframe_rate); // Incrementa o keyframe da animacao a ser desenhado
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // clear the screen
     glMatrixMode(GL_MODELVIEW);                          // switch to the model-view matrix
     glLoadIdentity();                                    // reset the matrix
@@ -212,6 +239,7 @@ void callBackFuncs(){
     glutReshapeFunc(reshape);
     glutSpecialFunc(arrowKeys);      // set the special key callback function
     glutKeyboardFunc(keyboard);
+    glutTimerFunc(1000/fps_desejado, timer, 0); //(mseg, timer, value)
 }
 
 void lightFuncs(){
@@ -263,15 +291,11 @@ void modelFuncs(){
     cout << "Loading frog model" << endl;
     frogModel = glmLoadAnimation("Obj/Tree_frog.obj", 1, 1);
     frogModel->name = "paused";
-    faces = frogModel->models[0]->numtriangles;
-    vertices = frogModel->models[0]->numvertices;
 
     // Loading Car model
     cout << "Loading car model" << endl;
     carModel = glmLoadAnimation("cars/PD_VehiclePack_OBJ/Sedan_A_beige.obj", 1,1);
     carModel->name = "paused";
-    facesCar = carModel->models[0]->numtriangles;
-    verticesCar = carModel->models[0]->numvertices;
 }
 
 void drawFloor(GLuint mode){
@@ -301,3 +325,50 @@ void drawFloor(GLuint mode){
     }
     glEnable(GL_TEXTURE_2D);
 }
+
+void computeFPS(int keyframe_rate){
+    static GLuint frames = 0;       //Conta os frames em 1000 milissegundos, computando o FPS
+    static GLuint clock;            // em milissegudos
+    static GLuint next_clock = 0;   // em milissegudos
+
+    //count_rate++;
+    //frames_playing++;
+    frames++;
+    clock = glutGet(GLUT_ELAPSED_TIME); //Número de milissegundos desde a chamada a glutInit()
+    
+    if (clock < next_clock ) return;
+    fps = frames; // guarda o número de frames por segundo
+    // Evita o reinicio da contagem dos frames na primeira iteracao
+    if(next_clock != 0) frames = 0;//Reinicia a contagem dos frames a cada 1000 milissegundos
+    next_clock = clock + 1000; //A cada 1000 milissegundos = 1 segundo
+}
+
+void timer(int value){
+    glutTimerFunc(1000/(fps_desejado), timer, 0);
+    carsMovements();
+
+    // Fim de jogo
+    if(zpos < -20)
+        exit(0);
+
+    glutPostRedisplay(); // Manda redesenhar a tela em cada frame
+}
+
+void carsMovements(){
+    for(int i=0;i<xcars.size(); i++){
+        if(carDir[i]){
+            xcars[i]++;
+        }else{
+            xcars[i]--;
+        }
+
+        if(xcars[i] < -26){
+            carDir[i] = true;
+        }else if(xcars[i] > 21.4){
+            carDir[i] = false;
+        }
+    }
+}
+
+// x -26
+// x 21.4
