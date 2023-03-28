@@ -217,8 +217,6 @@ void arrowKeys(int key, int x, int y) {
             break;
     }
     glutPostRedisplay();  // redraw the scene with the new sphere position
-    cout << "x" << xpos << endl << "y" << ypos << endl << "z" << zpos << endl;
-    collision();
 }
 
 void keyboard (unsigned char key, int x, int y){
@@ -349,8 +347,12 @@ void timer(int value){
     carsMovements();
 
     // Fim de jogo
-    if(zpos < -20)
+    if(zpos < -20){
+        cout << "End" << endl;
         exit(0);
+    }
+
+    collision();
 
     glutPostRedisplay(); // Manda redesenhar a tela em cada frame
 }
@@ -377,7 +379,7 @@ void collision(){
         if(abs(xpos + ((-1)*xcars[i])) < 3.5){
             if(abs((zpos-4.0) + ((-1)*zcars[i])) < 2.5){
                 cout << "collision with " << i << endl;
-                //exit(0);
+                exit(0);
             }
         }
     }
