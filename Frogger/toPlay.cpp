@@ -86,7 +86,7 @@ void drawFloor(GLuint mode);
 void computeFPS(int keyframe_rate);
 void timer(int value);
 void carsMovements();
-
+void collision();
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);          // initialize freeglut
@@ -218,6 +218,7 @@ void arrowKeys(int key, int x, int y) {
     }
     glutPostRedisplay();  // redraw the scene with the new sphere position
     cout << "x" << xpos << endl << "y" << ypos << endl << "z" << zpos << endl;
+    collision();
 }
 
 void keyboard (unsigned char key, int x, int y){
@@ -366,6 +367,18 @@ void carsMovements(){
             carDir[i] = true;
         }else if(xcars[i] > 21.4){
             carDir[i] = false;
+        }
+    }
+}
+
+void collision(){
+    
+    for(int i=0;i<(xcars.size());i++){
+        if(abs(xpos + ((-1)*xcars[i])) < 3.5){
+            if(abs((zpos-4.0) + ((-1)*zcars[i])) < 2.5){
+                cout << "collision with " << i << endl;
+                //exit(0);
+            }
         }
     }
 }
