@@ -76,6 +76,7 @@ void callBackFuncs();
 void lightFuncs();
 void modelFuncs();
 void texFuncs();
+void keyboard_special(int key, int x, int y);
 
 
 
@@ -125,12 +126,16 @@ void callBackFuncs(){
     glutReshapeFunc(reshape);
     //glutSpecialFunc(arrowKeys);      // set the special key callback function
     glutKeyboardFunc(keyboard);
+    glutSpecialFunc(keyboard_special);
 }
 
 void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // clear the screen
-    glMatrixMode(GL_MODELVIEW);                          // switch to the model-view matrix
-    glLoadIdentity();                                    // reset the matrix
+    //glMatrixMode(GL_MODELVIEW);                          // switch to the model-view matrix
+    //glLoadIdentity();                                    // reset the matrix
+
+    // Apaga o video e o depth buffer, e reinicia a matriz
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
 
     // Ativa/Desativa a Texturizacao 2D (Visualizacao de Texturas 2D)
     if(use_texture) glEnable(GL_TEXTURE_2D);
@@ -155,6 +160,9 @@ void display() {
         glRotated (rotz, 0.0f, 0.0f, 1.0f);
         glmDrawAnimation(frogModel, mode);
     glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D); //Desativa a Texturizacao 2D para desenhar o texto
+    glDisable(GL_LIGHTING); // Desliga a Luz para desenhar o texto
 
     //shapesToDraw();
     glutSwapBuffers();                                   // swap the front and back buffers to display the image
@@ -260,10 +268,82 @@ void modelFuncs(){
     // Loading the Frog model
     cout << "Loading frog model" << endl;
 
-    frogModel = glmLoadAnimation("ironman/ironman-T-pose.obj", 1, 1);
+    frogModel = glmLoadAnimation("models/ironman/ironman-T-pose.obj", 1, 1);
     frogModel->name = "paused";
     faces = frogModel->models[0]->numtriangles;
     vertices = frogModel->models[0]->numvertices;
     
     printf(" done.\n");
+}
+
+void keyboard_special(int key, int x, int y){
+    switch(key){
+        
+        case GLUT_KEY_F2: //Seleciona rederizacao solida ou em wireframe
+            if (render_solid) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            render_solid = !render_solid;
+        break;
+        case GLUT_KEY_F3: //Liga/desliga o color material
+            if (use_color_material){
+                glDisable(GL_COLOR_MATERIAL);
+                
+                //Redefine os parametros do material para os valores iniciais, que estavam rastreando o glColor
+                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material_Ka);
+                glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_Kd);
+                glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material_Ks);
+                glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_Ke);
+                glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material_Se);
+            }else glEnable(GL_COLOR_MATERIAL);
+            use_color_material = !use_color_material;
+        break;
+
+        case GLUT_KEY_F4: //Alterar a cor de desenho
+            if (R && G && B) { R = 0.0; G = 0.0; B = 1.0;} //Muda a cor para azul
+            else if(B){ R = 0.0; G = 1.0; B = 0.0;} //Muda a cor para verde
+            else if (G){ R = 1.0; G = 0.0; B = 0.0;} //Muda a cor para vermelho
+            else { R = 1.0; G = 1.0; B = 1.0;} //Muda a cor para branco
+        break;
+
+        case GLUT_KEY_F5: use_gouraud = !use_gouraud; break; //Liga/desliga o gouraud shading
+            
+        case GLUT_KEY_F6: //Liga/desliga o Z-buffering
+            if (use_depth_test) glDisable(GL_DEPTH_TEST);
+            else glEnable(GL_DEPTH_TEST);
+            use_depth_test = !use_depth_test;
+        break;
+            
+        case GLUT_KEY_F7: use_light = !use_light; break; //Liga/desliga a luz
+        
+        case GLUT_KEY_F8: use_texture = !use_texture; break; //Liga/desliga a visualizacao da textura
+        
+        case GLUT_KEY_F9: //Troca como a textura sera aplicada no objeto
+            switch (apply_texture) {
+                case GL_ADD:
+                    apply_texture = GL_DECAL;
+                    apply_texture_name = "Decal";
+                break;
+                case GL_MODULATE:
+                    apply_texture = GL_BLEND;
+                    apply_texture_name = "Blend";
+                break;
+                case GL_BLEND:
+                    apply_texture = GL_ADD;
+                    apply_texture_name = "Add";
+                break;
+                case GL_DECAL:
+                    apply_texture = GL_MODULATE;
+                    apply_texture_name = "Modulate";
+                break;
+                //Funcoes usadas para combinar mais de uma texturas
+//                case GL_COMBINE: //Uso sem combinar tem o mesmo efeito do GL_MODULATE
+//                break;
+//                case GL_REPLACE: //Uso sem combinar tem o mesmo efeito do GL_DECAL
+//                break;
+            }
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, apply_texture);
+        break;
+            
+   
+    }
 }
